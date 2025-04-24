@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Memory de Sonidos</title>
+  <style>
+    /* Reset y cuerpo */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+      min-height: 100vh; background: linear-gradient(135deg, #ff007f, #8000ff);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    /* Instrucciones */
+    .instructions { margin-top: 4vh; font-family: 'Bangers', cursive;
+      font-size: 4vw; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); text-align: center; }
+
+    /* Barra de juego */
+    .game-info { display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 2vw; margin: 4vh 0; color: #fff; width: 90%; }
+    .game-info span { font-size: 3vw; }
+    button { padding: 2vw 4vw; border: none; border-radius: 2vw;
+      background: linear-gradient(145deg, #ff6ec7, #ff3ccf); color: #fff;
+      font-size: 3vw; cursor: pointer; box-shadow: 0 2vw 4vw rgba(0,0,0,0.3);
+      transition: transform 0.1s, box-shadow 0.1s; }
+    button:active { transform: translateY(1vw); box-shadow: 0 1vw 2vw rgba(0,0,0,0.3); }
+
+    /* Logo */
+    .logo { width: 25vw; max-width: 120px; opacity: 0.9; }
+
+    /* Tablero 4x4 fijo */
+    .grid-container { display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 2vw; width: 90%; flex-grow: 1; margin-bottom: 4vh; perspective: 1000px; }
+    .card { position: relative; width: 100%; padding-top: 100%; /* cuadrado perfecto */
+      transform-style: preserve-3d; transition: transform 0.6s; cursor: pointer; }
+    .card.flipped { transform: rotateY(180deg); }
+    .card-face { position: absolute; top:0; left:0; width: 100%; height: 100%; border-radius: 2vw;
+      backface-visibility: hidden; display: flex; align-items: center; justify-content: center;
+      font-size: 6vw; }
+    .card-back { background: #222; }
+    .card-back::after { content: '?'; color: #fff; }
+    .card-front { background: #fff; transform: rotateY(180deg); }
+    .card.matched { box-shadow: 0 0 2vw gold; }
+
+    /* Mensaje final */
+    .congrats { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: Arial, sans-serif; font-size: 5vw; color: #000; font-weight: bold;
+      background: rgba(255,255,255,0.9); padding: 4vw 8vw; border-radius: 4vw;
+      z-index: 3; pointer-events: none; text-align: center; }
+
+    /* Pie */
+    .footer { margin: 2vh 0; color: #000;
+      font-family: Arial, sans-serif; font-size: 2.5vw; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    // Prompt de iniciales
+    const player = prompt('Introduce tus iniciales:','ABC') || '---';
+  </script>
+</head>
+<body>
+  <div class="instructions">Memoriza y encuentra los pares lo más rápido posible</div>
+  <div class="game-info">
+    <span id="player-name">Jugador: <strong>${player}</strong></span>
+    <span id="moves">Movimientos: 0</span>
+    <button id="sound-toggle">🔊</button>
+    <button id="view-records">Ver Records</button>
+    <img src="logo.png" alt="Logo GOP" class="logo">
+  </div>
+  <div class="grid-container" id="grid"></div>
+  <button id="restart-btn">Volver a jugar</button>
+  <div id="congrats" class="congrats">Felicidades lo lograste (nada que)</div>
+  <div class="footer">elaborado por goplemmings</div>
+  <script>
+    function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+      return new Promise((res, rej) => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); res(); } catch { rej(); } document.body.removeChild(ta); });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const icons = ['🐶','🐱','🦊','🐼','🐨','🐸','🐵','🦁'];
+      let cardArray = [...icons, ...icons];
+      const grid = document.getElementById('grid'), movesSpan = document.getElementById('moves'),
+            soundToggle = document.getElementById('sound-toggle'), viewRecords = document.getElementById('view-records'),
+            restartBtn = document.getElementById('restart-btn'), congrats = document.getElementById('congrats'),
+            playerNameSpan = document.getElementById('player-name');
+      playerNameSpan.textContent = `Jugador: ${player}`;
+      let hasFlipped = false, lockBoard = false, firstCard = null, secondCard = null, moves = 0, soundEnabled = true;
+      const sounds = { pop: new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flick.ogg'), success: new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg'), error: new Audio('https://actions.google.com/sounds/v1/cartoon/metal_thud_and_impact.ogg') };
+      const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); bgMusic.loop = true; bgMusic.volume = 0.3;
+      soundToggle.addEventListener('click', () => { soundEnabled = !soundEnabled; soundToggle.textContent = soundEnabled ? '🔊' : '🔇'; soundEnabled ? bgMusic.play() : bgMusic.pause(); });
+      viewRecords.addEventListener('click', () => { const recs = JSON.parse(localStorage.getItem('memoryRecords') || '[]'); if (!recs.length) return alert('No hay records aún.'); recs.sort((a,b) => a.moves - b.moves); let msg = 'Records:\n'; recs.forEach(r => msg += `${r.player}: ${r.moves} movimientos\n`); alert(msg); });
+      restartBtn.addEventListener('click', initializeGame);
+      function playSound(name) { if (soundEnabled) sounds[name].play(); }
+      function resetBoard() { hasFlipped = lockBoard = false; firstCard = secondCard = null; }
+      function initializeGame() { bgMusic.play().catch(() => {}); cardArray.sort(() => 0.5 - Math.random()); grid.innerHTML = ''; cardArray.forEach(icon => { const c = document.createElement('div'); c.className = 'card'; c.dataset.icon = icon; c.innerHTML = '<div class="card-face card-back"></div><div class="card-face card-front">'+icon+'</div>'; c.addEventListener('click', () => onCardClick(c)); grid.appendChild(c); }); moves = 0; movesSpan.textContent = `Movimientos: ${moves}`; congrats.style.display = 'none'; }
+      function onCardClick(card) { if (lockBoard || card === firstCard) return; playSound('pop'); card.classList.add('flipped'); if (!hasFlipped) { hasFlipped = true; firstCard = card; } else { secondCard = card; lockBoard = true; moves++; movesSpan.textContent = `Movimientos: ${moves}`; if (firstCard.dataset.icon === secondCard.dataset.icon) { playSound('success'); firstCard.classList.add('matched'); secondCard.classList.add('matched'); if (document.querySelectorAll('.card.matched').length === cardArray.length) { confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } }); congrats.style.display = 'block'; const recs = JSON.parse(localStorage.getItem('memoryRecords') || '[]'); recs.push({ player, moves }); localStorage.setItem('memoryRecords', JSON.stringify(recs)); } resetBoard(); } else { playSound('error'); setTimeout(() => { firstCard.classList.remove('flipped'); secondCard.classList.remove('flipped'); resetBoard(); }, 1000); } } }
+      const params = new URLSearchParams(window.location.search); if (params.has('score')) movesSpan.textContent = `Movimientos previos: ${params.get('score')}`;
+      initializeGame();
+    });
+  </script>
+</body>
+</html>
