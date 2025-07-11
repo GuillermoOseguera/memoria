@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: Ciclo de Formalización de Contratos (MFIJ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .flowchart-element {
+            border: 2px solid #A1D6FF;
+            background-color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+            z-index: 10;
+        }
+        .flowchart-element:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+            border-color: #0079FF;
+        }
+        .flowchart-connector {
+            width: 3px;
+            background-color: #0079FF;
+            margin: -2px auto;
+            position: relative;
+        }
+        .flowchart-arrow::after {
+            content: '▼';
+            color: #0079FF;
+            font-size: 1.25rem;
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .flowchart-decision {
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            background-color: #A1D6FF;
+            border: none;
+        }
+        .flowchart-decision span {
+            color: #004AAD;
+            font-weight: bold;
+        }
+        .flowchart-line {
+            background-color: #0079FF;
+            position: absolute;
+            z-index: 1;
+        }
+        .gantt-chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .kpi-card {
+             background-color: white;
+             padding: 1.5rem;
+             border-radius: 0.75rem;
+             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+             border-top: 4px solid #0079FF;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-12">
+            <img src="https://i.postimg.cc/zfVPBtr3/pngwing-com.png" alt="Logo del Gobierno de México" class="mx-auto h-48 mb-4">
+            <p class="text-2xl font-semibold text-green-600 mb-6">OOAD Queretaro</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-[#004AAD]">Ciclo de Formalización de Contratos</h1>
+            <p class="text-lg text-gray-600 mt-2">Infografía Interactiva del Proceso a través del MFIJ</p>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 text-center">
+            <div class="kpi-card">
+                <h3 class="text-5xl font-bold text-[#004AAD]">15</h3>
+                <p class="text-gray-600 mt-2 font-semibold">Días Hábiles Límite</p>
+                <p class="text-sm text-gray-500">Plazo máximo legal para la formalización.</p>
+            </div>
+            <div class="kpi-card border-t-[#52AFFF]">
+                <h3 class="text-5xl font-bold text-[#004AAD]">15</h3>
+                <p class="text-gray-600 mt-2 font-semibold">Días en Ruta Completa</p>
+                <p class="text-sm text-gray-500">Duración total del proceso planificado.</p>
+            </div>
+            <div class="kpi-card border-t-yellow-500">
+                <h3 class="text-5xl font-bold text-yellow-600">0</h3>
+                <p class="text-gray-600 mt-2 font-semibold">Días de Margen</p>
+                <p class="text-sm text-gray-500">El proceso utiliza el plazo completo.</p>
+            </div>
+            <div class="kpi-card border-t-red-500">
+                <h3 class="text-5xl font-bold text-red-600">2+</h3>
+                <p class="text-gray-600 mt-2 font-semibold">Días por Rechazo</p>
+                <p class="text-sm text-gray-500">Impacto promedio de un ciclo de revisión.</p>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-12">
+            <h2 class="text-2xl font-bold text-[#004AAD] mb-4 text-center">Cronograma del Proceso (Diagrama de Gantt)</h2>
+            <p class="text-center text-gray-600 mb-6">Esta gráfica visualiza la duración y secuencia de cada fase en la "ruta ideal". La línea vertical roja marca el plazo límite de 15 días.</p>
+            <div class="gantt-chart-container">
+                <canvas id="ganttChart"></canvas>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-12">
+            <h2 class="text-2xl font-bold text-[#004AAD] mb-4 text-center">Flujo de Proceso General</h2>
+            <div class="flex justify-center">
+                <img src="https://i.postimg.cc/50cGRhHL/Ciclo-de-formalizacio-n-de-contratos-a-trave-s-del-MFIJ-visual-selection-1.png" alt="Diagrama de flujo del ciclo de formalización de contratos" class="rounded-lg shadow-md max-w-full h-auto">
+            </div>
+        </section>
+        
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <div class="lg:col-span-1 bg-white rounded-xl shadow-lg p-6 md:p-8 flex flex-col justify-center">
+                <h2 class="text-2xl font-bold text-[#004AAD] mb-4 text-center">Distribución de Tiempos</h2>
+                <p class="text-center text-gray-600 mb-6">Porcentaje del tiempo consumido por cada etapa principal en la ruta completa de 15 días.</p>
+                <div class="chart-container" style="height: 300px; max-height: 40vh;">
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 md:p-8">
+                 <h2 class="text-2xl font-bold text-[#004AAD] mb-4 text-center">Semáforo de Riesgo por Plazo</h2>
+                <p class="text-center text-gray-600 mb-6">Monitorea el nivel de riesgo conforme avanzan los días. Cada día cuenta para cumplir con el plazo legal.</p>
+                <div class="space-y-4">
+                    <div class="flex items-center p-4 bg-green-50 border-l-4 border-green-500 rounded-lg shadow-sm">
+                        <div class="text-3xl mr-4">🟢</div>
+                        <div>
+                            <h4 class="font-bold text-green-800">Días 1-10: En Tiempo (Riesgo Bajo)</h4>
+                            <p class="text-green-700">El proceso fluye según lo planeado. Hay tiempo suficiente para las fases iniciales y revisiones.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow-sm">
+                        <div class="text-3xl mr-4">🟡</div>
+                        <div>
+                            <h4 class="font-bold text-yellow-800">Días 11-13: En Riesgo (Riesgo Medio)</h4>
+                            <p class="text-yellow-700">El margen de seguridad se consume. Un rechazo en esta fase compromete la entrega a tiempo.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm">
+                        <div class="text-3xl mr-4">🔴</div>
+                        <div>
+                            <h4 class="font-bold text-red-800">Días 14-15: Atrasado (Riesgo Alto)</h4>
+                            <p class="text-red-700">El proceso ha excedido el tiempo ideal. Se requiere acción inmediata para evitar el incumplimiento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-12">
+            <h2 class="text-2xl font-bold text-[#004AAD] mb-2 text-center">Flujo de Trabajo Interactivo</h2>
+            <p class="text-center text-gray-600 mb-10">Pasa el cursor sobre cada paso para ver los detalles. El flujo muestra las rutas de decisión críticas.</p>
+            <div class="flex flex-col items-center space-y-2">
+                <div class="flowchart-element w-80"><strong>Inicio:</strong> Fecha del Fallo</div>
+                <div class="flowchart-connector h-8 flowchart-arrow"></div>
+                <div class="flowchart-element w-80"><strong>1. Solicitud a Contratos</strong><br><span class="text-sm text-gray-500 font-medium">(Adquisiciones - 3 días)</span></div>
+                <div class="flowchart-connector h-8 flowchart-arrow"></div>
+                <div class="flowchart-element w-80"><strong>2. Análisis de Solicitud</strong><br><span class="text-sm text-gray-500 font-medium">(Contratos - 1 día)</span></div>
+                <div class="flowchart-connector h-8"></div>
+                
+                <div class="relative w-full flex justify-center items-center my-4" style="height: 180px;">
+                    <div class="flowchart-element flowchart-decision absolute z-20"><span>¿Doc. Completa?</span></div>
+                    <div class="flowchart-line h-full w-3 top-0" style="left: calc(50% - 1.5px);"></div>
+                    <div class="absolute top-1/2 left-1/2 text-[#004AAD] font-bold"><span class="bg-white px-2 relative z-10" style="top: -60px; right: 55px;">Sí ▼</span></div>
+                    
+                    <div class="flowchart-line h-3 w-1/4 top-1/2" style="left: calc(50% + 70px);"></div>
+                    <div class="absolute top-1/2 left-1/2 text-red-600 font-bold"><span class="bg-white px-2" style="left: 80px; top:-10px;">No ►</span></div>
+                    <div class="absolute top-1/2" style="left: calc(75% + 70px); transform: translateY(-50%);">
+                        <div class="flowchart-element w-56 bg-orange-100 border-orange-400"><strong>Regresa a Adquisiciones para solventar</strong></div>
+                    </div>
+                </div>
+
+                <div class="flowchart-element w-80"><strong>3. Creación de Proyecto de Contrato</strong><br><span class="text-sm text-gray-500 font-medium">(Contratos - 3 días)</span></div>
+                <div class="flowchart-connector h-8 flowchart-arrow"></div>
+                <div class="flowchart-element w-80"><strong>4. Revisión Interna y Proveedor</strong><br><span class="text-sm text-gray-500 font-medium">(1 día)</span></div>
+                <div class="flowchart-connector h-8 flowchart-arrow"></div>
+                <div class="flowchart-element w-80"><strong>5. Autorización de UC con FIEL</strong><br><span class="text-sm text-gray-500 font-medium">(2 días)</span></div>
+                <div class="flowchart-connector h-8 flowchart-arrow"></div>
+                <div class="flowchart-element w-80"><strong>6. Validación del Administrador</strong><br><span class="text-sm text-gray-500 font-medium">(1 día)</span></div>
+                <div class="flowchart-connector h-8"></div>
+
+                <div class="relative w-full flex justify-center items-center my-4" style="height: 180px;">
+                    <div class="flowchart-element flowchart-decision absolute z-20"><span>¿Admin. Aprueba?</span></div>
+                    <div class="flowchart-line h-full w-3 top-0" style="left: calc(50% - 1.5px);"></div>
+                    <div class="absolute top-1/2 left-1/2 text-[#004AAD] font-bold"><span class="bg-white px-2 relative z-10" style="top: -60px; right: 55px;">Sí ▼</span></div>
+                    
+                    <div class="flowchart-line h-3 w-1/4 top-1/2" style="left: calc(50% + 70px);"></div>
+                    <div class="absolute top-1/2 left-1/2 text-red-600 font-bold"><span class="bg-white px-2" style="left: 80px; top:-10px;">No ►</span></div>
+                    <div class="absolute top-1/2" style="left: calc(75% + 70px); transform: translateY(-50%);">
+                        <div class="flowchart-element w-56 bg-red-100 border-red-400"><strong>Aviso de Rechazo y Corrección (1+ día)</strong></div>
+                    </div>
+                </div>
+                
+                <div class="flowchart-element w-80"><strong>7. UC Captura Plazos de Firma</strong><br><span class="text-sm text-gray-500 font-medium">(1 día)</span></div>
+                <div class="flowchart-connector h-8 flowchart-arrow"></div>
+                <div class="flowchart-element w-80"><strong>8. Firma de Funcionarios (UC y Admin)</strong></div>
+                <div class="flowchart-connector h-8 flowchart-arrow"></div>
+                <div class="flowchart-element w-80"><strong>9. Firma del Proveedor</strong></div>
+                <div class="flowchart-connector h-8 flowchart-arrow"></div>
+                <div class="flowchart-element w-80 bg-green-200 border-green-500"><strong>✅ Fin del Proceso</strong></div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-[#004AAD] mb-6 text-center">Resumen y Puntos Críticos</h2>
+            <div class="max-w-3xl mx-auto space-y-6 text-gray-700">
+                <div class="flex items-start p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                    <span class="text-3xl text-red-500 mr-4 mt-1">⚠️</span>
+                    <div>
+                        <h4 class="font-bold text-lg text-red-800">Documentación Incompleta</h4>
+                        <p class="mt-1">El primer punto de control es crucial. Si la documentación no está completa, el proceso se detiene y regresa a Adquisiciones, consumiendo días valiosos desde el inicio y generando el primer gran riesgo de retraso.</p>
+                    </div>
+                </div>
+                <div class="flex items-start p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                    <span class="text-3xl text-red-500 mr-4 mt-1">⚠️</span>
+                    <div>
+                        <h4 class="font-bold text-lg text-red-800">Rechazo del Administrador</h4>
+                        <p class="mt-1">Un rechazo por parte del administrador del contrato genera un retroceso significativo. Implica notificar, corregir y volver a solicitar la autorización de la UC, lo que puede añadir fácilmente 2 o más días al cronograma, cabe mencionar que para evitar esto, antes de cargar el contrato al MFIJ se le envia el proyecto al Administrador y a las Areas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="text-center p-4 text-gray-500 text-sm">
+        <p>Oficina de contratos</p>
+    </footer>
+
+    <script>
+        const brilliantBlues = {
+            dark: '#004AAD',
+            bright: '#0079FF',
+            light: '#52AFFF',
+            veryLight: '#A1D6FF',
+            text: '#1F2937'
+        };
+
+        const wrapLabel = (label, maxLength = 16) => {
+            if (!label || typeof label !== 'string') return '';
+            if (label.length <= maxLength) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).trim().length > maxLength) {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine = (currentLine + ' ' + word).trim();
+                }
+            });
+            if (currentLine) lines.push(currentLine.trim());
+            return lines;
+        };
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+              return label.join(' ');
+            }
+            return label;
+        };
+        
+        const commonChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: brilliantBlues.text,
+                        font: { size: 14, family: 'Inter' }
+                    }
+                },
+                tooltip: {
+                    callbacks: { title: tooltipTitleCallback },
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: { size: 14, family: 'Inter', weight: 'bold' },
+                    bodyFont: { size: 12, family: 'Inter' },
+                    padding: 10,
+                    cornerRadius: 4,
+                    displayColors: false,
+                }
+            }
+        };
+
+        const ganttData = {
+            labels: [
+                'Solicitud de Contrato', 
+                'Análisis de Solicitud',
+                'Generación de Proyecto',
+                'Revisión y Ajustes',
+                'Autorización en MFIJ',
+                'Validación en MFIJ',
+                'Captura Plazos Firma',
+                'Firma de Funcionarios y Proveedor'
+            ].map(l => wrapLabel(l, 25)),
+            datasets: [{
+                label: 'Días Hábiles',
+                data: [
+                    [0, 3],  [3, 4], [4, 7], [7, 8], [8, 10], [10, 11], [11, 12], [12, 16]
+                ],
+                backgroundColor: [
+                    brilliantBlues.dark, brilliantBlues.light, brilliantBlues.dark, brilliantBlues.light,
+                    brilliantBlues.bright, brilliantBlues.light, brilliantBlues.bright, brilliantBlues.light
+                ],
+                borderColor: brilliantBlues.dark,
+                borderWidth: 1,
+                barPercentage: 0.6,
+                categoryPercentage: 0.7,
+                borderRadius: 4,
+                borderSkipped: false,
+            }]
+        };
+
+        const ganttCtx = document.getElementById('ganttChart').getContext('2d');
+        new Chart(ganttCtx, {
+            type: 'bar',
+            data: ganttData,
+            options: {
+                ...commonChartOptions,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        position: 'top',
+                        title: {
+                            display: true,
+                            text: 'Días Hábiles Transcurridos',
+                            color: brilliantBlues.text,
+                            font: { size: 14, weight: 'bold', family: 'Inter' }
+                        },
+                        min: 0,
+                        max: 16,
+                        grid: { borderColor: brilliantBlues.dark },
+                        ticks: { color: brilliantBlues.text, font: { family: 'Inter' } }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: brilliantBlues.text, font: { family: 'Inter' } }
+                    }
+                },
+                plugins: {
+                     ...commonChartOptions.plugins,
+                     annotation: {
+                        annotations: {
+                            limitLine: {
+                                type: 'line',
+                                xMin: 15, xMax: 15,
+                                borderColor: 'rgb(239, 68, 68)',
+                                borderWidth: 3,
+                                borderDash: [6, 6],
+                                label: {
+                                    enabled: true,
+                                    content: 'Límite Legal',
+                                    position: 'end',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                    font: { family: 'Inter' }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const donutData = {
+            labels: ['Preparación (Adq. y Contratos)', 'Revisiones y Autorizaciones', 'Fase de Firmas'],
+            datasets: [{
+                label: 'Días por Etapa',
+                data: [7, 4, 4],
+                backgroundColor: [ '#0079FF', '#6B7280', '#8B5CF6' ],
+                borderColor: '#f0f4f8',
+                borderWidth: 5,
+                hoverOffset: 8
+            }]
+        };
+
+        const donutCtx = document.getElementById('donutChart').getContext('2d');
+        new Chart(donutCtx, {
+            type: 'doughnut',
+            data: donutData,
+            options: {
+                ...commonChartOptions,
+                cutout: '60%',
+                plugins: {
+                    ...commonChartOptions.plugins,
+                    tooltip: {
+                        ...commonChartOptions.plugins.tooltip,
+                        callbacks: {
+                            ...commonChartOptions.plugins.tooltip.callbacks,
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + ' días';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
