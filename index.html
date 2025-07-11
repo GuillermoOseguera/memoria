@@ -77,7 +77,7 @@
             position: relative;
             width: 100%;
             max-width: 1200px;
-            height: 450px;
+            height: 500px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -100,29 +100,6 @@
             <h1 class="text-4xl md:text-5xl font-extrabold text-[#004AAD]">Ciclo de Formalización de Contratos</h1>
             <p class="text-lg text-gray-600 mt-2">Infografía Interactiva del Proceso a través del MFIJ</p>
         </header>
-
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 text-center">
-            <div class="kpi-card">
-                <h3 class="text-5xl font-bold text-[#004AAD]">15</h3>
-                <p class="text-gray-600 mt-2 font-semibold">Días Hábiles Límite</p>
-                <p class="text-sm text-gray-500">Plazo máximo legal para la formalización.</p>
-            </div>
-            <div class="kpi-card border-t-[#52AFFF]">
-                <h3 class="text-5xl font-bold text-[#004AAD]">15</h3>
-                <p class="text-gray-600 mt-2 font-semibold">Días en Ruta Completa</p>
-                <p class="text-sm text-gray-500">Duración total del proceso planificado.</p>
-            </div>
-            <div class="kpi-card border-t-yellow-500">
-                <h3 class="text-5xl font-bold text-yellow-600">0</h3>
-                <p class="text-gray-600 mt-2 font-semibold">Días de Margen</p>
-                <p class="text-sm text-gray-500">El proceso utiliza el plazo completo.</p>
-            </div>
-            <div class="kpi-card border-t-red-500">
-                <h3 class="text-5xl font-bold text-red-600">2+</h3>
-                <p class="text-gray-600 mt-2 font-semibold">Días por Rechazo</p>
-                <p class="text-sm text-gray-500">Impacto promedio de un ciclo de revisión.</p>
-            </div>
-        </section>
 
         <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-12">
             <h2 class="text-2xl font-bold text-[#004AAD] mb-4 text-center">Cronograma del Proceso (Diagrama de Gantt)</h2>
@@ -318,23 +295,24 @@
 
         const ganttData = {
             labels: [
-                'Solicitud de Contrato', 
-                'Análisis de Solicitud',
-                'Generación de Proyecto',
-                'Revisión y Ajustes',
-                'Autorización en MFIJ',
-                'Validación en MFIJ',
-                'Captura Plazos Firma',
-                'Firma de Funcionarios y Proveedor'
-            ].map(l => wrapLabel(l, 25)),
+                'Solicitud de Contrato (3 días)', 
+                'Análisis de Solicitud (1 día)',
+                'Generación de Proyecto (3 días)',
+                'Revisión y Ajustes (1 día)',
+                'Autorización en MFIJ (2 días)',
+                'Validación en MFIJ (1 día)',
+                'Captura Plazos Firma (1 día)',
+                'Firma de Funcionarios (1 día)',
+                'Firma Proveedor (3 días)'
+            ],
             datasets: [{
                 label: 'Días Hábiles',
                 data: [
-                    [0, 3],  [3, 4], [4, 7], [7, 8], [8, 10], [10, 11], [11, 12], [12, 16]
+                    [0, 3],  [3, 4], [4, 7], [7, 8], [8, 10], [10, 11], [11, 12], [11, 12], [12, 15]
                 ],
                 backgroundColor: [
                     brilliantBlues.dark, brilliantBlues.light, brilliantBlues.dark, brilliantBlues.light,
-                    brilliantBlues.bright, brilliantBlues.light, brilliantBlues.bright, brilliantBlues.light
+                    brilliantBlues.bright, brilliantBlues.light, brilliantBlues.bright, brilliantBlues.dark, brilliantBlues.light
                 ],
                 borderColor: brilliantBlues.dark,
                 borderWidth: 1,
@@ -362,9 +340,12 @@
                             font: { size: 14, weight: 'bold', family: 'Inter' }
                         },
                         min: 0,
-                        max: 16,
-                        grid: { borderColor: brilliantBlues.dark },
-                        ticks: { color: brilliantBlues.text, font: { family: 'Inter' } }
+                        max: 15,
+                        ticks: { 
+                            color: brilliantBlues.text, 
+                            font: { family: 'Inter' },
+                            stepSize: 1
+                        }
                     },
                     y: {
                         grid: { display: false },
